@@ -10,36 +10,32 @@ import org.hyperledger.fabric.sdk.security.CryptoSuite;
 import org.hyperledger.fabric.sdk.security.CryptoSuiteFactory;
 import org.hyperledger.fabric_ca.sdk.EnrollmentRequest;
 import org.hyperledger.fabric_ca.sdk.HFCAClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import static com.example.bimapplication.blockchain.config.FabricConstants.CA_URI;
-import static com.example.bimapplication.blockchain.config.FabricConstants.PEMFILE_LOCATION;
-
 @Component
 public class EnrollAdminConfig implements BlockChainInitializer {
 
-    static {
+    private final FabricConstants fabricConstants;
+
+    @Autowired
+    public EnrollAdminConfig(FabricConstants fabricConstants) {
+        this.fabricConstants = fabricConstants;
         System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "true");
     }
 
-    /**
-     * Runs this operation at blockchain.
-     */
     @Override
     @PostConstruct
     public void runAtBlockChain() throws Exception {
-
         // Create a CA client for interacting with the CA.
-
         Properties props = new Properties();
-        props.put("pemFile", PEMFILE_LOCATION);
-
+        props.put("pemFile", fabricConstants.getPemFileLocation());
         props.put("allowAllHostNames", "true");
-        HFCAClient caClient = HFCAClient.createNewInstance(CA_URI, props);
+        HFCAClient caClient = HFCAClient.createNewInstance(fabricConstants.getCaUri(), props);
         CryptoSuite cryptoSuite = CryptoSuiteFactory.getDefault().getCryptoSuite();
         caClient.setCryptoSuite(cryptoSuite);
 
@@ -62,5 +58,4 @@ public class EnrollAdminConfig implements BlockChainInitializer {
         wallet.put("admin", user);
         System.out.println("Successfully enrolled user \"admin\" and imported it into the wallet");
     }
-
 }

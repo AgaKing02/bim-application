@@ -8,6 +8,7 @@ import org.hyperledger.fabric.sdk.security.CryptoSuite;
 import org.hyperledger.fabric.sdk.security.CryptoSuiteFactory;
 import org.hyperledger.fabric_ca.sdk.HFCAClient;
 import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
@@ -17,30 +18,27 @@ import java.security.PrivateKey;
 import java.util.Properties;
 import java.util.Set;
 
-import static com.example.bimapplication.blockchain.config.FabricConstants.CA_URI;
-import static com.example.bimapplication.blockchain.config.FabricConstants.PEMFILE_LOCATION;
-
 @Component
 @DependsOn("enrollAdminConfig")
 public class EnrollRegisterUserConfig implements BlockChainInitializer {
 
+    private final FabricConstants fabricConstants;
 
-    static {
+    @Autowired
+    public EnrollRegisterUserConfig(FabricConstants fabricConstants) {
+        this.fabricConstants = fabricConstants;
         System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "true");
     }
 
-    /**
-     * Runs this operation at blockchain.
-     */
     @Override
     @PostConstruct
     public void runAtBlockChain() throws Exception {
 
         // Create a CA client for interacting with the CA.
         Properties props = new Properties();
-        props.put("pemFile", PEMFILE_LOCATION);
+        props.put("pemFile", fabricConstants.getPemFileLocation());
         props.put("allowAllHostNames", "true");
-        HFCAClient caClient = HFCAClient.createNewInstance(CA_URI, props);
+        HFCAClient caClient = HFCAClient.createNewInstance(fabricConstants.getCaUri(), props);
         CryptoSuite cryptoSuite = CryptoSuiteFactory.getDefault().getCryptoSuite();
         caClient.setCryptoSuite(cryptoSuite);
 
@@ -57,11 +55,10 @@ public class EnrollRegisterUserConfig implements BlockChainInitializer {
         if (adminIdentity == null) {
             String exception = "\"admin\" needs to be enrolled and added to the wallet first";
             System.out.println(exception);
-
             throw new RuntimeException(exception);
         }
-        User admin = new User() {
 
+        User admin = new User() {
             @Override
             public String getName() {
                 return "admin";
@@ -85,7 +82,6 @@ public class EnrollRegisterUserConfig implements BlockChainInitializer {
             @Override
             public Enrollment getEnrollment() {
                 return new Enrollment() {
-
                     @Override
                     public PrivateKey getKey() {
                         return adminIdentity.getPrivateKey();
@@ -102,7 +98,6 @@ public class EnrollRegisterUserConfig implements BlockChainInitializer {
             public String getMspId() {
                 return "Org1MSP";
             }
-
         };
 
         // Register the user, enroll the user, and import the new identity into the wallet.
@@ -111,9 +106,8 @@ public class EnrollRegisterUserConfig implements BlockChainInitializer {
         registrationRequest.setEnrollmentID("appUser");
         String enrollmentSecret = caClient.register(registrationRequest, admin);
         Enrollment enrollment = caClient.enroll("appUser", enrollmentSecret);
-        Identity user = Identities.newX509Identity("Org1MSP", adminIdentity.getCertificate(), adminIdentity.getPrivateKey());
+        Identity user = Identities.newX509Identity("Org1MSP", enrollment);
         wallet.put("appUser", user);
         System.out.println("Successfully enrolled user \"appUser\" and imported it into the wallet");
     }
-
 }

@@ -1,18 +1,36 @@
 package com.example.bimapplication.blockchain.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-@Configuration
+import javax.annotation.PostConstruct;
+
+@Component
 public class FabricConstants {
 
     @Value("${blockchain.network.pem-file.location}")
-    public static String PEMFILE_LOCATION;
+    private String pemFileLocation;
 
     @Value("${blockchain.network.ca-client.url}")
-    public static String CA_URI;
+    private String caUri;
 
     @Value("${blockchain.network.config.path}")
-    public static String NETWORK_PATH;
+    private String networkPath;
 
+    @PostConstruct
+    private void init() {
+        System.out.println("pem file location: " + getPemFileLocation());
+    }
+
+    public String getPemFileLocation() {
+        return pemFileLocation;
+    }
+
+    public String getCaUri() {
+        return caUri;
+    }
+
+    public String getNetworkPath() {
+        return networkPath;
+    }
 }
