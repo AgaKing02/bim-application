@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
-    private Integer userId;
+    private String userId;
     private String firstName;
     private String lastName;
     private String email;

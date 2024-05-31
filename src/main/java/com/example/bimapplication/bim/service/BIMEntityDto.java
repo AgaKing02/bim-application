@@ -1,4 +1,4 @@
-package com.example.bimapplication.bim;
+package com.example.bimapplication.bim.service;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,16 +6,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BIMEntity {
+public class BIMEntityDto {
     private String id;
     private String name;
     private String role;
     private String data;
-    private LocalDateTime timestamp;
+    private String timestamp;
 
     // BIM-specific fields
     private String location;

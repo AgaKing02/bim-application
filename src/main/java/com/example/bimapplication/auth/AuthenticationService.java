@@ -1,5 +1,8 @@
 package com.example.bimapplication.auth;
 
+import com.example.bimapplication.auth.model.AuthenticationRequest;
+import com.example.bimapplication.auth.model.AuthenticationResponse;
+import com.example.bimapplication.auth.model.RegisterRequest;
 import com.example.bimapplication.config.JwtService;
 import com.example.bimapplication.user.Role;
 import com.example.bimapplication.user.User;
@@ -11,6 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 @Service
@@ -23,6 +27,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) throws ContractException, InterruptedException, TimeoutException {
         var user = User.builder()
+                .userId(UUID.randomUUID().toString())
                 .firstName(request.getFirstname())
                 .lastName(request.getLastname())
                 .email(request.getEmail())

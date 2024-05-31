@@ -2,6 +2,7 @@ package com.example.bimapplication.bim.repository.impl;
 
 import com.example.bimapplication.bim.BIMEntity;
 import com.example.bimapplication.bim.repository.BIMEntityRepository;
+import com.example.bimapplication.bim.service.BIMEntityDto;
 import com.example.bimapplication.blockchain.exception.RecordAlreadyExistsException;
 import com.example.bimapplication.blockchain.exception.RecordNotFoundException;
 import com.example.bimapplication.blockchain.util.HlfExceptionMessageUtil;
@@ -41,9 +42,23 @@ public class BIMEntityRepositoryImpl implements BIMEntityRepository {
     }
 
     @Override
-    public void save(BIMEntity bimEntity) throws ContractException, InterruptedException, TimeoutException {
+    public BIMEntityDto save(BIMEntity bimEntity) throws ContractException, InterruptedException, TimeoutException {
         try {
-            bimContract.submitTransaction(CREATE_NEW_BIM, jsonUtil.mapToJsonString(bimEntity));
+            byte[] bytes = bimContract.submitTransaction(CREATE_NEW_BIM,
+                    bimEntity.getId(),
+                    bimEntity.getName(),
+                    bimEntity.getRole(),
+                    bimEntity.getData(),
+                    String.valueOf(bimEntity.getTimestamp()),
+                    bimEntity.getLocation(),
+                    bimEntity.getMaterial(),
+                    String.valueOf(bimEntity.getLength()),
+                    String.valueOf(bimEntity.getWidth()),
+                    String.valueOf(bimEntity.getHeight()),
+                    String.valueOf(bimEntity.getLatitude()),
+                    String.valueOf(bimEntity.getLongitude()),
+                    String.valueOf(bimEntity.getProjectId()));
+            return jsonUtil.mapJsonToObject(new String(bytes), BIMEntityDto.class);
         } catch (ContractException ex) {
             if (ex.getMessage().contains(HlfExceptionMessageUtil.ASSET_ALREADY_EXISTS_MESSAGE)) {
                 throw new RecordAlreadyExistsException(String.format("BIM %s is already exists", bimEntity.getId()));
@@ -65,11 +80,11 @@ public class BIMEntityRepositoryImpl implements BIMEntityRepository {
     }
 
     protected static class BIMTransactionUtil {
-        public static final String BIM_TRANSFER = "BIMTransfer";
+        public static final String BIM_TRANSFER = "BimObjectTransfer";
 
-        public static final String BIM_BY_ID = "getBIMById";
-        public static final String DELETE_BIM = "deleteBIMById";
-        public static final String CREATE_NEW_BIM = "createNewBIM";
+        public static final String BIM_BY_ID = BIM_TRANSFER + ":queryBimById";
+        public static final String DELETE_BIM = BIM_TRANSFER + ":deleteBimById";
+        public static final String CREATE_NEW_BIM = BIM_TRANSFER + ":addNewEntity";
 
     }
 }

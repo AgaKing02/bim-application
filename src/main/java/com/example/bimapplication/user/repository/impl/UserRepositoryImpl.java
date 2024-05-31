@@ -1,5 +1,6 @@
 package com.example.bimapplication.user.repository.impl;
 
+import com.example.bimapplication.blockchain.config.NetworkConfig;
 import com.example.bimapplication.blockchain.exception.RecordAlreadyExistsException;
 import com.example.bimapplication.blockchain.exception.RecordNotFoundException;
 import com.example.bimapplication.blockchain.util.HlfExceptionMessageUtil;
@@ -50,7 +51,7 @@ public class UserRepositoryImpl implements UserRepository {
     public void save(User newUser) throws ContractException, InterruptedException, TimeoutException {
         try {
             userContract.submitTransaction(CREATE_NEW_USER,
-                    newUser.getUserId().toString(),
+                    newUser.getUserId(),
                     newUser.getFirstName(),
                     newUser.getLastName(),
                     newUser.getEmail(),
@@ -82,7 +83,7 @@ public class UserRepositoryImpl implements UserRepository {
         public static final String USER_BY_EMAIL = "getUserByEmail";
         public static final String USER_BY_ID = "getUserById";
         public static final String DELETE_USER = "deleteUserById";
-        public static final String CREATE_NEW_USER = "createNewUser";
+        public static final String CREATE_NEW_USER = "addNewUser";
 
     }
 }

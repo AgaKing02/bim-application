@@ -1,5 +1,8 @@
 package com.example.bimapplication.auth;
 
+import com.example.bimapplication.auth.model.AuthenticationRequest;
+import com.example.bimapplication.auth.model.AuthenticationResponse;
+import com.example.bimapplication.auth.model.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.hyperledger.fabric.gateway.ContractException;
 import org.springframework.http.ResponseEntity;
