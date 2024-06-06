@@ -22,11 +22,17 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(rq ->
-                        rq.requestMatchers("/**")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated());
+                .authorizeHttpRequests(authorize -> {
+                            authorize
+//                                  .requestMatchers("/**").permitAll()
+                                    .requestMatchers("/api/v1/auth/**").permitAll()
+                                    .requestMatchers("/api/v1/bim/**").hasAuthority("ROLE_ADMIN")
+                                    .requestMatchers("/api-docs/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()//                                    .requestMatchers("/swagger-ui/**").permitAll()
+                                    .anyRequest()
+                                    .authenticated();
+                            ;
+                        }
+                );
         http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authenticationProvider(authenticationProvider).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
